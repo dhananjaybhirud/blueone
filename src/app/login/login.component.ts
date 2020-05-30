@@ -14,7 +14,7 @@ export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
   loading = false;
-    submitted = false;
+  submitted = false;
 
   constructor(
     public loggedInService: LoggedinService,
@@ -25,9 +25,18 @@ export class LoginComponent implements OnInit {
 
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      username: ['', Validators.required],
+      username: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
   });
+    if(localStorage.getItem('loggedIn')) {
+      if(localStorage.getItem('loggedIn')  == 'true') {
+        this.isLoggedIn = true;
+        const redirect = this.loggedInService.redirectUrl ? this.loggedInService.redirectUrl :
+        '/pos';
+        this.router.navigate([redirect]);
+      }
+    }
+
   }
 
   get f() { return this.loginForm.controls; }
@@ -36,6 +45,7 @@ export class LoginComponent implements OnInit {
     this.loggedInService.login()
       .subscribe((isLoggedIn) => {
         this.isLoggedIn = isLoggedIn;
+        console.log(this.isLoggedIn);
         const redirect = this.loggedInService.redirectUrl ? this.loggedInService.redirectUrl :
             '/pos';
         this.router.navigate([redirect]);
@@ -52,9 +62,9 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(){
-   console.log(this.loginForm);
+  //  console.log(this.loginForm);
    this.submitted = true;
-    if (this.loginForm.invalid) {
+   if (this.loginForm.invalid) {
         return;
     } else{
       this.logIn();
